@@ -1,20 +1,23 @@
 "use client"
 
-import { signIn, useSession } from "next-auth/react";
+import { signIn, useSession, signOut } from "next-auth/react";
 import { useState } from "react";
-import { Menu, Sparkles, X } from "lucide-react";
+import { Crown, Menu, Sparkles, X } from "lucide-react";
 import { Button } from "./ui/button";
 import { motion } from 'motion/react';
 import { scrollToSection } from "@/lib/utils";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 export default function Navbar() {
+    const router = useRouter();
     const [isScrolled, setIsScrolled] = useState<boolean>(false);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState<boolean>(false);
     const { data: session } = useSession();
 
     const handleSubmit = async () => {
         if (session?.user) {
-            scrollToSection("editor", setIsMobileMenuOpen);
+            router.push('/studio')
         } else {
             await signIn("google");
         }
@@ -24,55 +27,69 @@ export default function Navbar() {
         <motion.nav
             initial={{ y: -100 }}
             animate={{ y: 0 }}
-            className={`fixed top-0 left-0 right-0 z-50 transition-all backdrop-blur-sm duration-300 ${isScrolled
+            className={`fixed top-0 left-0 right-0 z-50 transition-all backdrop-blur-sm duration-300 py-2 ${isScrolled
                 ? "glass border-b border-card-border backdrop-blur-glass"
                 : "bg-transparent"
                 }`}
         >
             <div className="container mx-auto px-4 py-4">
                 <div className="flex items-center justify-between">
-                    {/* Logo */}
-                    <motion.div
-                        className="flex items-center space-x-2 cursor-pointer"
-                        whileHover={{ scale: 1.05 }}
-                        onClick={() => scrollToSection("hero")}
-                    >
-                        <div className="relative">
-                            <Sparkles
-                                fill="transparent"
-                                className="h-8 w-8 text-primary animate-glow-pulse"
-                            />
-                            <div className="absolute inset-0 h-8 w-8 text-secondary animate-glow-pulse opacity-50" />
-                        </div>
-                        <span className="text-2xl font-bold bg-gradient-primary !bg-clip-text text-transparent">
-                            Pixora
-                        </span>
-                    </motion.div>
+                    <Link href={'/'}>
+                        <motion.div
+                            className="flex items-center space-x-2 cursor-pointer"
+                            whileHover={{ scale: 1.05 }}
+                            onClick={() => scrollToSection("hero")}
+                        >
+                            <div className="relative">
+                                <Sparkles
+                                    fill="transparent"
+                                    className="h-8 w-8 text-primary animate-glow-pulse"
+                                />
+                                <div className="absolute inset-0 h-8 w-8 text-secondary animate-glow-pulse opacity-50" />
+                            </div>
+                            <span className="text-2xl font-bold bg-gradient-primary !bg-clip-text text-transparent">
+                                Pixora
+                            </span>
+                        </motion.div>
+                    </Link>
 
-                    {/* Navigation */}
                     <div className="hidden md:flex items-center space-x-8">
                         <button
-                            onClick={() => scrollToSection("features")}
-                            className="text-foreground hover:text-primary transition-colors font-medium"
-                        >
-                            Features
-                        </button>
-                        <button
-                            onClick={() => scrollToSection("pricing")}
+                            onClick={() => router.push('/pricing')}
                             className="text-foreground hover:text-primary transition-colors font-medium"
                         >
                             Pricing
                         </button>
-                        <Button
-                            variant="hero"
-                            className="font-semibold"
-                            onClick={handleSubmit}
-                        >
-                            {session?.user ? "Launch App" : "Sign In"}
-                        </Button>
+
+                        <div className="flex items-center gap-2">
+                            <Button
+                                variant="hero"
+                                className="font-semibold relative"
+                                onClick={handleSubmit}
+                            >
+                                {session?.user ? "Studio" : "Sign In"}
+
+                                {session?.user.plan === "PAID" && (
+                                    <span className="absolute -top-2 -right-1 rotate-20">
+                                        <Crown className="text-amber-500 stroke-3" />
+                                    </span>
+                                )}
+                            </Button>
+
+
+
+                            {(session?.user && session.user) && (
+                                <Button
+                                    variant={'destructive'}
+                                    className="font-semibold"
+                                    onClick={async () => await signOut()}
+                                >
+                                    Logout
+                                </Button>
+                            )}
+                        </div>
                     </div>
 
-                    {/* Mobile Menu Button */}
                     <button
                         className="md:hidden text-foreground"
                         onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
@@ -95,19 +112,13 @@ export default function Navbar() {
                 >
                     <div className="py-4 space-y-4">
                         <button
-                            onClick={() => scrollToSection("features")}
-                            className="block w-full text-left text-foreground hover:text-primary transition-colors font-medium"
-                        >
-                            Features
-                        </button>
-                        <button
                             onClick={() => scrollToSection("pricing")}
                             className="block w-full text-left text-foreground hover:text-primary transition-colors font-medium"
                         >
                             Pricing
                         </button>
                         <Button variant="hero" className="w-full" onClick={handleSubmit}>
-                            {session?.user ? "Launch App" : "Sign In"}
+                            {session?.user ? "Studio" : "Sign In"}
                         </Button>
                     </div>
                 </motion.div>

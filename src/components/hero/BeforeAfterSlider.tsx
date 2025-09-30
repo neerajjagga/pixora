@@ -15,18 +15,11 @@ const BeforeAfterSlider = () => {
     };
 
     const handleMouseMove = (e: React.MouseEvent) => {
-        console.log("Mouse is moving");
-        
         if (!isDragging || !containerRef.current) return;
 
         const rect = containerRef.current.getBoundingClientRect();
-        console.log("React", rect);
-        
         const x = e.clientX - rect.left;
-        console.log("x", x);
-
         const percentage = Math.max(0, Math.min(100, (x / rect.width) * 100));
-        console.log("percentage", percentage);
 
         setSliderPosition(percentage);
     };
@@ -38,7 +31,7 @@ const BeforeAfterSlider = () => {
 
     return (
         <motion.div
-            className="relative w-full max-w-lg mx-auto"
+            className="relative w-full max-w-xl mx-auto"
             initial={{ scale: 0.9, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             transition={{ duration: 0.8 }}

@@ -5,8 +5,11 @@ import { Button } from "@/components/ui/button";
 import { Play, Sparkles, ArrowRight } from "lucide-react";
 import { scrollToSection } from "@/lib/utils";
 import BeforeAfterSlider from "./BeforeAfterSlider";
+import { useRouter } from "next/navigation";
 
 export default function Hero() {
+    const router = useRouter();
+
     return (
         <section
             id="hero"
@@ -72,7 +75,7 @@ export default function Hero() {
                             variant="hero"
                             size="lg"
                             onClick={() => scrollToSection("editor")}
-                            className="group text-white"
+                            className="group text-white font-semibold"
                         >
                             <Play className="h-5 w-5 mr-2 group-hover:animate-pulse" />
                             Try Free Now
@@ -80,10 +83,10 @@ export default function Hero() {
                         <Button
                             variant="secondary"
                             size="lg"
-                            onClick={() => scrollToSection("editor")}
-                            className="group"
+                            onClick={() => router.push('/studio')}
+                            className="group font-semibold"
                         >
-                            Launch App
+                            Enter Studio
                             <ArrowRight className="h-5 w-5 ml-2 group-hover:translate-x-1 transition-transform" />
                         </Button>
                     </motion.div>
