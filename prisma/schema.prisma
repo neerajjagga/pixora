@@ -12,19 +12,24 @@ enum Plan {
   PAID
 }
 
+enum MediaType {
+  IMAGE
+}
+
 model User {
-  id         String   @id @default(cuid())
-  name       String
-  email      String   @unique
-  image      String?
-  plan       Plan     @default(FREE)
-  usageCount Int      @default(0)
-  usageLimit Int      @default(3)
-  emailVerified DateTime? @map("email_verified")
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+  id            String    @id @default(cuid())
+  name          String
+  email         String    @unique
+  image         String?
+  plan          Plan      @default(FREE)
+  usageCount    Int       @default(0)
+  usageLimit    Int       @default(3)
+  emailVerified DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
 
   accounts Account[]
+  media    Media[]
 
   @@map("users")
 }
@@ -49,4 +54,34 @@ model Account {
 
   @@id([provider, providerAccountId])
   @@map("accounts")
+}
+
+model Media {
+  id          String    @id @default(cuid())
+  url         String
+  type        MediaType @default(IMAGE)
+  height      Int
+  width       Int
+  size        Int
+  providerKey String
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  userId          String
+  uploadedBy      User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  transformations TransformedMedia[]
+
+  @@map("media")
+}
+
+model TransformedMedia {
+  id  String @id @default(cuid())
+  url String
+
+  parentMediaId String
+  parentMedia   Media  @relation(fields: [parentMediaId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@map("transformed_media")
 }

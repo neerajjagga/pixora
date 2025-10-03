@@ -1,5 +1,5 @@
 "use client";
-import { Check, Crown, Star, Zap } from "lucide-react";
+import { Check, Crown, PartyPopper, Star, Zap } from "lucide-react";
 import React, { startTransition, useState } from "react";
 import { motion } from 'motion/react'
 import { Button } from "@/components/ui/button";
@@ -72,6 +72,12 @@ const Pricing = () => {
             setLoading(true);
             await updateUserPlan(plan);
             await update();
+            toast.success(
+                <div className="flex items-center gap-2">
+                    You are now Pixora Pro!
+                    <PartyPopper className="w-5 h-5" />
+                </div>
+            );
         } catch (err: any) {
             toast.error(err.message || "Something went wrong");
         } finally {

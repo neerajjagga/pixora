@@ -1,29 +1,68 @@
 'use server';
 
-import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/db";
+import { checkSession } from "@/lib/helper";
 import { Plan } from "@prisma/client";
-import { getServerSession } from "next-auth";
 
 export async function updateUserPlan(plan: Plan) {
     try {
-        const session = await getServerSession(authOptions);
-        if (!session || !session.user) {
-            throw new Error("Unauthorized");
-        };
-        
+        const user = await checkSession();
+
         if (plan !== "PAID") {
             throw new Error("Invalid plan");
         }
 
         const updatedUser = await prisma.user.update({
-            where: { id: session.user.id },
-            data: { plan },
+            where: { id: user.id },
+            data: {
+                plan,
+                usageLimit: 99999
+            },
         });
 
         return updatedUser;
     } catch (err: any) {
         console.error("Failed to update plan:", err.message);
+        throw new Error(err.message || "Something went wrong");
+    }
+}
+
+
+export const checkUsage = async () => {
+    try {
+        const user = await checkSession();
+
+        if (user.usageCount >= user.usageLimit) {
+            return false;
+        }
+
+        return true;
+
+    } catch (err: any) {
+        console.error("Failed to check usage:", err.message);
+        throw new Error(err.message || "Something went wrong");
+    }
+}
+
+export const incrementUsageCount = async () => {
+    try {
+        const user = await checkSession();
+
+        const updatedUser = await prisma.user.update({
+            where: {
+                id: user.id
+            },
+            data: {
+                usageCount: {
+                    increment: 1
+                }
+            }
+        });
+
+        return updatedUser;
+
+    } catch (err: any) {
+        console.error("Failed to increment usage count:", err.message);
         throw new Error(err.message || "Something went wrong");
     }
 }

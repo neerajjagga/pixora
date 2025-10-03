@@ -2,7 +2,7 @@
 
 import { signIn, useSession, signOut } from "next-auth/react";
 import { useState } from "react";
-import { Crown, Menu, Sparkles, X } from "lucide-react";
+import { Coins, Crown, Menu, Sparkles, X } from "lucide-react";
 import { Button } from "./ui/button";
 import { motion } from 'motion/react';
 import { scrollToSection } from "@/lib/utils";
@@ -11,12 +11,14 @@ import Link from "next/link";
 
 export default function Navbar() {
     const router = useRouter();
+    
     const [isScrolled, setIsScrolled] = useState<boolean>(false);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState<boolean>(false);
     const { data: session } = useSession();
+    const user = session?.user;
 
     const handleSubmit = async () => {
-        if (session?.user) {
+        if (user) {
             router.push('/studio')
         } else {
             await signIn("google");
@@ -62,23 +64,31 @@ export default function Navbar() {
                         </button>
 
                         <div className="flex items-center gap-2">
+                            {user && (
+                                <Button
+                                    variant='secondary'
+                                    className="font-semibold relative"
+                                >
+                                    <Coins />
+                                    Credits
+                                    <span className="py-1 px-4 text-xs bg-black rounded-full text-white font-bold">{user.usageLimit - user.usageCount}</span>
+                                </Button>
+                            )}
                             <Button
                                 variant="hero"
                                 className="font-semibold relative"
                                 onClick={handleSubmit}
                             >
-                                {session?.user ? "Studio" : "Sign In"}
+                                {user ? "Studio" : "Sign In"}
 
-                                {session?.user.plan === "PAID" && (
+                                {user?.plan === "PAID" && (
                                     <span className="absolute -top-2 -right-1 rotate-20">
                                         <Crown className="text-amber-500 stroke-3" />
                                     </span>
                                 )}
                             </Button>
 
-
-
-                            {(session?.user && session.user) && (
+                            {user && (
                                 <Button
                                     variant={'destructive'}
                                     className="font-semibold"
@@ -117,8 +127,18 @@ export default function Navbar() {
                         >
                             Pricing
                         </button>
+                        {user && (
+                            <Button
+                                variant='secondary'
+                                className="w-full font-semibold relative"
+                            >
+                                <Coins />
+                                Credits
+                                <span className="py-1 px-4 text-xs bg-black rounded-full text-white font-bold">{user.usageLimit - user.usageCount}</span>
+                            </Button>
+                        )}
                         <Button variant="hero" className="w-full" onClick={handleSubmit}>
-                            {session?.user ? "Studio" : "Sign In"}
+                            {user ? "Studio" : "Sign In"}
                         </Button>
                     </div>
                 </motion.div>
