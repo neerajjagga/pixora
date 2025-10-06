@@ -5,14 +5,18 @@ import { Button } from "@/components/ui/button";
 import Icon from '@mdi/react';
 import { mdiImageOutline } from '@mdi/js';
 import { ImageKitInvalidRequestError, ImageKitServerError, ImageKitUploadNetworkError, upload, UploadResponse } from '@imagekit/next'
-import { checkUsage, incrementUsageCount } from "@/actions/user";
+import { checkUsage } from "@/actions/user";
 import { toast } from "sonner";
 import { useSession } from "next-auth/react";
 import { createMedia } from "@/actions/media";
 import Image from "next/image";
-import { AnimatePresence, easeIn, motion } from 'motion/react';
+import { AnimatePresence, motion } from 'motion/react';
 
-export default function UploadMediaButton() {
+interface UploadMediaButtonProps {
+    onUploadSuccess?: () => void;
+}
+
+export default function UploadMediaButton({ onUploadSuccess }: UploadMediaButtonProps) {
     const { update } = useSession();
     const inputRef = useRef<HTMLInputElement>(null);
 
@@ -21,7 +25,6 @@ export default function UploadMediaButton() {
     const [progress, setProgress] = useState(0);
 
     const handleClick = () => {
-        // Trigger the hidden file input
         inputRef.current?.click();
     };
 
@@ -99,6 +102,10 @@ export default function UploadMediaButton() {
             await update();
 
             toast.success("Image uploaded successfully");
+            
+            if (onUploadSuccess) {
+                onUploadSuccess();
+            }
         } catch (err: any) {
             console.error("Upload failed:", err);
             toast.error(err || "Unable to upload media, try again later");
